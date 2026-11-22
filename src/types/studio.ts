@@ -135,6 +135,16 @@ export interface StudioParams {
   motionShearPos: number;
   motionEcho: number;
 
+  // Gradient Map
+  gradientMapEnabled: boolean;
+  gradientMapShadow: string;
+  gradientMapMidEnabled: boolean;
+  gradientMapMid: string;
+  gradientMapMidPos: number;
+  gradientMapHighlight: string;
+  gradientMapOpacity: number;
+  gradientMapReverse: boolean;
+
   // Animation & Video
   animPlaying: boolean;
   animSpeed: number;
@@ -142,6 +152,16 @@ export interface StudioParams {
   animInkPulse: number;
   animXeroxFlicker: number;
   seed: number;
+}
+
+export interface GradientMapPreset {
+  id: string;
+  name: string;
+  shadow: string;
+  midEnabled: boolean;
+  mid: string;
+  midPos: number;
+  highlight: string;
 }
 
 export interface UploadedMedia {

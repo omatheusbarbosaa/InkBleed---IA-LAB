@@ -25,6 +25,7 @@ import {
   UploadedMedia,
 } from '../types/studio';
 import {CURATED_GOOGLE_FONTS, GoogleFontOption} from '../utils/googleFonts';
+import {ColorPickerControl} from './ColorPickerControl';
 import {StudioSlider} from './StudioSlider';
 
 interface LeftPanelProps {
@@ -260,36 +261,15 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
               )}
 
               {/* Cor do Texto */}
-              <div className="pt-2 space-y-2">
-                <div className="flex items-center justify-between text-xs text-[#A1A1AA]">
-                  <span>Cor do Texto</span>
-                  <span className="font-mono tabular-nums text-[11px] text-[#F4F4F5]">
-                    {params.textColor.toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={params.textColor}
-                    onChange={(e) => onUpdate({textColor: e.target.value})}
-                    aria-label="Cor do texto"
-                    className="w-7 h-7 rounded border border-[#2E2E35] bg-transparent cursor-pointer"
-                  />
-                  {TEXT_COLOR_SWATCHES.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => onUpdate({textColor: c})}
-                      aria-label={`Cor do texto ${c}`}
-                      style={{backgroundColor: c}}
-                      className={`w-6 h-6 rounded border cursor-pointer transition-transform ${
-                        params.textColor.toLowerCase() === c.toLowerCase()
-                          ? 'border-[#E85D2A] scale-110'
-                          : 'border-[#3A3A42]'
-                      }`}
-                    />
-                  ))}
-                </div>
+              <div className="pt-2">
+                <ColorPickerControl
+                  label="Cor do Texto"
+                  value={params.textColor}
+                  onChange={(hex) => onUpdate({textColor: hex})}
+                  swatches={TEXT_COLOR_SWATCHES}
+                  defaultOpen
+                  compact
+                />
               </div>
             </div>
 

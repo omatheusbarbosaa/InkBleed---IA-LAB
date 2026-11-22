@@ -896,6 +896,49 @@ export class StudioRenderer {
       params.scanOverlay === 'xerox-dark' ? 1 : 0
     );
 
+    const [gmsR, gmsG, gmsB] = hexToRgbNorm(params.gradientMapShadow);
+    const [gmmR, gmmG, gmmB] = hexToRgbNorm(params.gradientMapMid);
+    const [gmhR, gmhG, gmhB] = hexToRgbNorm(params.gradientMapHighlight);
+
+    gl.uniform1f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapEnabled'),
+      params.gradientMapEnabled ? 1 : 0
+    );
+    gl.uniform3f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapShadow'),
+      gmsR,
+      gmsG,
+      gmsB
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapMidEnabled'),
+      params.gradientMapMidEnabled ? 1 : 0
+    );
+    gl.uniform3f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapMid'),
+      gmmR,
+      gmmG,
+      gmmB
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapMidPos'),
+      params.gradientMapMidPos / 100
+    );
+    gl.uniform3f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapHighlight'),
+      gmhR,
+      gmhG,
+      gmhB
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapOpacity'),
+      params.gradientMapOpacity / 100
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(this.prog3, 'u_gradientMapReverse'),
+      params.gradientMapReverse ? 1 : 0
+    );
+
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     gl.bindVertexArray(null);
   }

@@ -1,4 +1,4 @@
-import {StudioParams, StudioPreset} from '../types/studio';
+import {GradientMapPreset, StudioParams, StudioPreset} from '../types/studio';
 import {CURATED_GOOGLE_FONTS} from '../utils/googleFonts';
 
 export const DEFAULT_PARAMS: StudioParams = {
@@ -82,6 +82,15 @@ export const DEFAULT_PARAMS: StudioParams = {
   motionShearPos: 45,
   motionEcho: 14,
 
+  gradientMapEnabled: false,
+  gradientMapShadow: '#120B2E',
+  gradientMapMidEnabled: true,
+  gradientMapMid: '#E85D2A',
+  gradientMapMidPos: 50,
+  gradientMapHighlight: '#F4EDE2',
+  gradientMapOpacity: 100,
+  gradientMapReverse: false,
+
   animPlaying: true,
   animSpeed: 75,
   animMotionSweep: 22,
@@ -89,6 +98,63 @@ export const DEFAULT_PARAMS: StudioParams = {
   animXeroxFlicker: 18,
   seed: 42.7,
 };
+
+export const GRADIENT_MAP_PRESETS: GradientMapPreset[] = [
+  {
+    id: 'termico',
+    name: 'Térmico Riso',
+    shadow: '#120B2E',
+    midEnabled: true,
+    mid: '#E84525',
+    midPos: 50,
+    highlight: '#F4EBD9',
+  },
+  {
+    id: 'cianotipia',
+    name: 'Cianotipia',
+    shadow: '#081B33',
+    midEnabled: true,
+    mid: '#2E6DA4',
+    midPos: 52,
+    highlight: '#F2F4F0',
+  },
+  {
+    id: 'infravermelho',
+    name: 'Infravermelho',
+    shadow: '#140718',
+    midEnabled: true,
+    mid: '#D91E5B',
+    midPos: 48,
+    highlight: '#F5E9D8',
+  },
+  {
+    id: 'acido',
+    name: 'Ácido Zine',
+    shadow: '#111312',
+    midEnabled: true,
+    mid: '#76C82A',
+    midPos: 50,
+    highlight: '#F4F4EE',
+  },
+  {
+    id: 'cromo',
+    name: 'Cromo Sépia',
+    shadow: '#1D140E',
+    midEnabled: true,
+    mid: '#B87A3D',
+    midPos: 48,
+    highlight: '#F6EFE2',
+  },
+  {
+    id: 'cobalto',
+    name: 'Cobalto Duo',
+    shadow: '#0D2159',
+    midEnabled: false,
+    mid: '#3B66C4',
+    midPos: 50,
+    highlight: '#EDEBE5',
+  },
+];
 
 export const REFERENCE_PRESETS: StudioPreset[] = [
   {
@@ -518,6 +584,10 @@ export function randomizeStudioParams(
   const useShear = Math.random() > 0.35;
   const useHalftone = Math.random() > 0.25;
 
+  const useGradientMap = Math.random() > 0.62;
+  const gmPreset =
+    GRADIENT_MAP_PRESETS[Math.floor(Math.random() * GRADIENT_MAP_PRESETS.length)];
+
   return {
     ...current,
     seed: Math.round(Math.random() * 10000) / 100,
@@ -525,6 +595,15 @@ export function randomizeStudioParams(
     inkColor: palette.ink,
     textColor: palette.invert ? palette.paper : palette.ink,
     invertOutput: palette.invert,
+
+    gradientMapEnabled: useGradientMap,
+    gradientMapShadow: gmPreset.shadow,
+    gradientMapMidEnabled: gmPreset.midEnabled,
+    gradientMapMid: gmPreset.mid,
+    gradientMapMidPos: gmPreset.midPos,
+    gradientMapHighlight: gmPreset.highlight,
+    gradientMapOpacity: useGradientMap ? Math.round(randRange(70, 100)) : current.gradientMapOpacity,
+    gradientMapReverse: useGradientMap ? Math.random() > 0.78 : current.gradientMapReverse,
 
     fontFamily: randomFont.family,
     fontWeight:

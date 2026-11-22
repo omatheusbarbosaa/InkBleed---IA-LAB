@@ -471,6 +471,16 @@ uniform float u_hasScanOverlay;
 uniform float u_scanOverlayOpacity;
 uniform float u_scanOverlayDarkMode;
 
+// Gradient Map
+uniform float u_gradientMapEnabled;
+uniform vec3 u_gradientMapShadow;
+uniform float u_gradientMapMidEnabled;
+uniform vec3 u_gradientMapMid;
+uniform float u_gradientMapMidPos;
+uniform vec3 u_gradientMapHighlight;
+uniform float u_gradientMapOpacity;
+uniform float u_gradientMapReverse;
+
 float hash12(vec2 p) {
   vec3 p3 = fract(vec3(p.xyx) * 0.1031);
   p3 += dot(p3, p3.yzx + 33.33);
@@ -609,8 +619,8 @@ void main() {
     }
     finalRGB = tintedArt;
   } else {
-    vec3 pigmentCol = art.a > 0.005
-      ? mix(inkCol, clamp(art.rgb, 0.0, 1.0), smoothstep(0.01, 0.14, art.a))
+    vec3 pigmentCol = art.a > 0.002
+      ? mix(inkCol, clamp(art.rgb, 0.0, 1.0), smoothstep(0.001, 0.035, art.a))
       : inkCol;
     finalRGB = mix(paperCol, pigmentCol, clamp(ink, 0.0, 1.0));
   }
@@ -620,6 +630,26 @@ void main() {
     vec4 ov = texture(u_overlayTex, v_uv);
     vec3 markCol = u_invertOutput > 0.5 ? u_paperColor : u_inkColor;
     finalRGB = mix(finalRGB, markCol, ov.a);
+  }
+
+  // 9. Gradient Map (2-stop or 3-stop tonal color mapping)
+  if (u_gradientMapEnabled > 0.5 && u_gradientMapOpacity > 0.002) {
+    float gmT = clamp(dot(finalRGB, vec3(0.299, 0.587, 0.114)), 0.0, 1.0);
+    if (u_gradientMapReverse > 0.5) {
+      gmT = 1.0 - gmT;
+    }
+    vec3 mappedRGB;
+    if (u_gradientMapMidEnabled > 0.5) {
+      float midP = clamp(u_gradientMapMidPos, 0.05, 0.95);
+      if (gmT < midP) {
+        mappedRGB = mix(u_gradientMapShadow, u_gradientMapMid, gmT / midP);
+      } else {
+        mappedRGB = mix(u_gradientMapMid, u_gradientMapHighlight, (gmT - midP) / (1.0 - midP));
+      }
+    } else {
+      mappedRGB = mix(u_gradientMapShadow, u_gradientMapHighlight, gmT);
+    }
+    finalRGB = mix(finalRGB, mappedRGB, clamp(u_gradientMapOpacity, 0.0, 1.0));
   }
 
   fragColor = vec4(clamp(finalRGB, 0.0, 1.0), 1.0);

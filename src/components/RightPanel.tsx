@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import {ChevronDown, ChevronRight, RotateCcw} from 'lucide-react';
+import {GRADIENT_MAP_PRESETS} from '../data/presets';
 import {ScanOverlayId, StudioParams} from '../types/studio';
+import {ColorPickerControl} from './ColorPickerControl';
 import {StudioSlider} from './StudioSlider';
 
 interface RightPanelProps {
@@ -364,7 +366,190 @@ export const RightPanel: React.FC<RightPanelProps> = ({params, onUpdate}) => {
           />
         </EffectSection>
 
-        {/* 5. ANIMAÇÃO PARA VÍDEO */}
+        {/* 5. GRADIENT MAP */}
+        <EffectSection
+          title="Gradient Map"
+          defaultOpen={true}
+          onReset={() =>
+            onUpdate({
+              gradientMapEnabled: false,
+              gradientMapOpacity: 100,
+              gradientMapReverse: false,
+            })
+          }
+        >
+          <div className="flex items-center justify-between gap-2">
+            <label className="inline-flex items-center gap-2 text-xs text-[#F4F4F5] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={params.gradientMapEnabled}
+                onChange={(e) =>
+                  onUpdate({gradientMapEnabled: e.target.checked})
+                }
+                className="accent-[#E85D2A] rounded"
+              />
+              <span>Ativar Gradient Map</span>
+            </label>
+
+            <label className="inline-flex items-center gap-1.5 text-[11px] text-[#A1A1AA] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={params.gradientMapReverse}
+                onChange={(e) =>
+                  onUpdate({gradientMapReverse: e.target.checked})
+                }
+                className="accent-[#E85D2A] rounded"
+              />
+              <span>Inverter</span>
+            </label>
+          </div>
+
+          {/* Live Gradient Bar Preview */}
+          <div
+            className={`w-full h-4 rounded border border-[#2C2C34] transition-opacity ${
+              params.gradientMapEnabled ? 'opacity-100' : 'opacity-45'
+            }`}
+            style={{
+              background: (() => {
+                const s = params.gradientMapReverse
+                  ? params.gradientMapHighlight
+                  : params.gradientMapShadow;
+                const h = params.gradientMapReverse
+                  ? params.gradientMapShadow
+                  : params.gradientMapHighlight;
+                if (params.gradientMapMidEnabled) {
+                  const pos = params.gradientMapReverse
+                    ? 100 - params.gradientMapMidPos
+                    : params.gradientMapMidPos;
+                  return `linear-gradient(to right, ${s} 0%, ${params.gradientMapMid} ${pos}%, ${h} 100%)`;
+                }
+                return `linear-gradient(to right, ${s} 0%, ${h} 100%)`;
+              })(),
+            }}
+          />
+
+          {/* Quick Duotone / Tritone Presets */}
+          <div className="space-y-1.5">
+            <span className="block text-[11px] text-[#A1A1AA]">
+              Paletas de Gradiente
+            </span>
+            <div className="grid grid-cols-2 gap-1.5">
+              {GRADIENT_MAP_PRESETS.map((preset) => {
+                const isSelected =
+                  params.gradientMapEnabled &&
+                  params.gradientMapShadow.toLowerCase() ===
+                    preset.shadow.toLowerCase() &&
+                  params.gradientMapHighlight.toLowerCase() ===
+                    preset.highlight.toLowerCase() &&
+                  params.gradientMapMidEnabled === preset.midEnabled &&
+                  (!preset.midEnabled ||
+                    params.gradientMapMid.toLowerCase() ===
+                      preset.mid.toLowerCase());
+                const previewBg = preset.midEnabled
+                  ? `linear-gradient(to right, ${preset.shadow}, ${preset.mid} ${preset.midPos}%, ${preset.highlight})`
+                  : `linear-gradient(to right, ${preset.shadow}, ${preset.highlight})`;
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() =>
+                      onUpdate({
+                        gradientMapEnabled: true,
+                        gradientMapShadow: preset.shadow,
+                        gradientMapMidEnabled: preset.midEnabled,
+                        gradientMapMid: preset.mid,
+                        gradientMapMidPos: preset.midPos,
+                        gradientMapHighlight: preset.highlight,
+                      })
+                    }
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded border text-left transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#27272D] border-[#E85D2A] text-[#F4F4F5]'
+                        : 'bg-[#1A1A1E] border-[#26262A] text-[#A1A1AA] hover:text-[#F4F4F5]'
+                    }`}
+                  >
+                    <span
+                      className="w-5 h-3 rounded-sm border border-white/15 shrink-0"
+                      style={{background: previewBg}}
+                    />
+                    <span className="text-[11px] truncate">{preset.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2.5 pt-1">
+            <ColorPickerControl
+              label="Sombras (0%)"
+              value={params.gradientMapShadow}
+              onChange={(hex) =>
+                onUpdate({gradientMapEnabled: true, gradientMapShadow: hex})
+              }
+              compact
+            />
+
+            <label className="inline-flex items-center gap-2 text-xs text-[#A1A1AA] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={params.gradientMapMidEnabled}
+                onChange={(e) =>
+                  onUpdate({
+                    gradientMapEnabled: true,
+                    gradientMapMidEnabled: e.target.checked,
+                  })
+                }
+                className="accent-[#E85D2A] rounded"
+              />
+              <span>Cor intermediária (3 tons)</span>
+            </label>
+
+            {params.gradientMapMidEnabled && (
+              <>
+                <ColorPickerControl
+                  label="Meios-tons"
+                  value={params.gradientMapMid}
+                  onChange={(hex) =>
+                    onUpdate({gradientMapEnabled: true, gradientMapMid: hex})
+                  }
+                  compact
+                />
+                <StudioSlider
+                  label="Posição do Meio-tom"
+                  value={params.gradientMapMidPos}
+                  min={15}
+                  max={85}
+                  unit="%"
+                  onChange={(v) =>
+                    onUpdate({gradientMapEnabled: true, gradientMapMidPos: v})
+                  }
+                />
+              </>
+            )}
+
+            <ColorPickerControl
+              label="Luzes (100%)"
+              value={params.gradientMapHighlight}
+              onChange={(hex) =>
+                onUpdate({gradientMapEnabled: true, gradientMapHighlight: hex})
+              }
+              compact
+            />
+          </div>
+
+          <StudioSlider
+            label="Intensidade do Mapa"
+            value={params.gradientMapOpacity}
+            min={0}
+            max={100}
+            unit="%"
+            onChange={(v) =>
+              onUpdate({gradientMapEnabled: true, gradientMapOpacity: v})
+            }
+          />
+        </EffectSection>
+
+        {/* 6. ANIMAÇÃO PARA VÍDEO */}
         <EffectSection
           title="Movimento Generativo"
           defaultOpen={false}
