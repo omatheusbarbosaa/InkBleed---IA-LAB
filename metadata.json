@@ -1,0 +1,6 @@
+{
+  "name": "Prelo Studio",
+  "description": "Ferramenta experimental de composição visual e tipografia com efeitos generativos de inkbleed, textura xerox, distressed text e motion blur com exportação em alta resolução e vídeo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
